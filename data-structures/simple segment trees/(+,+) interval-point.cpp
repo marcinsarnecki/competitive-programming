@@ -7,7 +7,6 @@
 using namespace std;
 typedef pair<int,int> pii;
 typedef long long ll;
-const long long INF = 1e9 + 1;
 
 #define NTREE 1048576
 int tree[NTREE*2];
