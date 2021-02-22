@@ -12,10 +12,9 @@ const long long INF = 1000000000000000000ll;
 #define N 1001
 #define log 18
 vector<int> graf[N];
-int parent[N], preorder[N], postorder[N], ldx, lca[log][N], n;
+int preorder[N], postorder[N], ldx, lca[log][N], n;
 
-int dfs(int v, int p) {
-	parent[v] = p;
+void dfs(int v, int p) {
 	lca[0][v] = p;
 	preorder[v] = ++ldx;
 	for(auto u: graf[v])
