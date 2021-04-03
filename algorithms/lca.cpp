@@ -24,7 +24,10 @@ void dfs(int v, int p) {
 }
 
 bool przodek(int v, int u) { //czy v jest przodkiem u
-	if(preorder[v] < preorder[u] && postorder[v] > preorder[u]) return true;
+	if(v == u)
+		return true;
+	if(preorder[v] < preorder[u] && postorder[v] > postorder[u]) 
+		return true;
 	return false;
 }
 
