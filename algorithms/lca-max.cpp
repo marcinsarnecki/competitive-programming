@@ -25,8 +25,10 @@ void dfs(int v, int p, int w) {
 }
 
 bool przodek(int v, int u) { //czy v jest przodkiem u
+	if(v == u)
+		return true;
 	if (preorder[v] < preorder[u] && postorder[v] > preorder[u]) return true;
-	return false;
+		return false;
 }
 
 int lcamax(int v, int u) {//max kraw na sciezce v-u //min dzialaloby tak samo, jedynie na poczatku ans musialoby byc rowne +INF 
