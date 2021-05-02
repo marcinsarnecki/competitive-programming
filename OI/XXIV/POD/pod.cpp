@@ -1,61 +1,74 @@
-#include<cstdio>
-#define MAX_B 1000000
-#define MAX_Q 100001
-struct cyfra
-{
-	int i;
-	long long l,p;	
-};
-cyfra P[MAX_B];
-long long B[MAX_B];
-long long Q[MAX_Q];
-int s=0;
-long long ostatnia;
-int zapytanie(long long pozycja)
-{
-	if(pozycja>ostatnia) return -1;
-	long long lewa_granica=0;
-	long long prawa_granica=s-1;
-	long long mid=(lewa_granica+prawa_granica)/2;
-	while(!	(	P[mid].l<=pozycja && pozycja<=P[mid].p	)	)
-	{
-		if(	pozycja<P[mid].l	) prawa_granica=mid;
-		else lewa_granica=mid+1;
-		mid=(lewa_granica+prawa_granica)/2;
-	}
-	return P[mid].i;
+#include<bits/stdc++.h>
+#define f first
+#define s second
+#define pb push_back
+#define rep(i,a,b) for(int i = a; i <= b; i++)
+#define repv(i,a,b) for(int i = a; i >= b; i--)
+using namespace std;
+typedef pair<int,int> pii;
+typedef long long ll;
+
+#define N 1000001
+#define Q 100001
+
+int B, q, idx, a[N];
+ll sum, last, g, zap[Q];
+
+struct cyfra {
+    int i;//jaka cyfra
+    ll p, k;// poczatek, koniec gdzie ona jest w wynikowej liczbie
+}liczba[N];
+
+void wczytaj() {
+    cin>>B>>q;
+    rep(i,0,B-1)
+        cin>>a[i];
+    rep(i,1,q)
+        cin>>zap[i];
 }
+
+void init() {
+    rep(i,0,B-1)
+        sum += (ll)a[i] * i;
+    ll rest = sum % (B-1);
+    if(rest != 0)
+        a[rest]--;//korekta zeby bylo podzielne przez b-1
+    rep(i,0,B-1) {
+        if(a[i] > 0) {
+            liczba[idx].i = i; //po kolei wszystkie cyfry tej liczby
+            liczba[idx].p = g;
+            g += a[i] - 1;
+            liczba[idx++].k = g++;
+        }
+    }
+    idx--;
+    last = liczba[idx].k; 
+}
+
+ll query(ll pos) {
+    if(pos > last)
+        return -1;
+    ll l = 0, r = idx, mid;
+    while(l <= r) {
+        mid = (l + r) / 2;
+        if(pos <= liczba[mid].k)
+            r = mid-1;
+        else
+            l = mid + 1;
+    }
+    return liczba[r+1].i;
+}
+
+void solve() {
+    rep(i,1,q)
+        cout<<query(zap[i])<<"\n";
+}
+
 int main()
 {
-	int b,q;
-	long long suma_cyfr=0;
-	scanf("%d%d",&b,&q);
-	scanf("%d",&(B[0]));
-	for(int i=1;i<b;++i)
-		{
-		 scanf("%lld",&(B[i]));
-		 suma_cyfr=suma_cyfr+(B[i]*i);
-		}
-	for(int i=1;i<=q;++i) scanf("%lld",&(Q[i]));
-	long long reszta=suma_cyfr%(b-1);
-	if(reszta!=0) B[reszta]--;
-	long long granica = 0;
-	for(int i=0;i<b;++i)
-		{
-			if(B[i]>0)
-				{
-					P[s].i=i;
-					P[s].l=granica;
-					granica=granica+B[i]-1;
-					P[s].p=granica;
-					granica++;
-					s++;
-				}
-		}
-	ostatnia=P[s-1].p;
-	for(int i=1;i<=q;++i)
-		{
-			printf("%d\n",zapytanie(Q[i]));
-		}	
+	ios_base::sync_with_stdio(0);
+	wczytaj();
+    	init();
+    	solve();
 	return 0;
 }
