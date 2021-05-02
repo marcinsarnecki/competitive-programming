@@ -1,134 +1,118 @@
 #include<bits/stdc++.h>
+#define f first
+#define s second
+#define pb push_back
+#define rep(i,a,b) for(int i = a; i <= b; i++)
+#define repv(i,a,b) for(int i = a; i >= b; i--)
 using namespace std;
-int pref1[30][2000005], pref0[30][2000005], zle[30];
-int n, m, wa;
-int tab1[2000005], tab2[2000005], tab3[2000005];
-long long ans;
-bool przedzial(int a, int b)// <a,b>
-{
-	if(a == b)
-	{
-		for(int j = 0; j < n; j++) if(zle[j] == 0) return 0;
-	}
-	if(b < a)
-	{
-		for(int j = 0; j < n; j++)
-		{
-			if(zle[j] == 0)//brak zlego fragmentu
-			{
-				if(pref0[j][m] - pref0[j][a - 1] + pref0[j][b] == 0) return 0;
-				if(pref1[j][m] - pref1[j][a - 1] + pref1[j][b] == 0) return 0;
-			}
-		}
-		return 1;
-	}
-	for(int j = 0; j < n; j++)
-	{
-		if(zle[j] == 0)//brak zlego fragmentu
-		{
-			if(pref0[j][b] - pref0[j][a - 1] == 0) return 0;
-			if(pref1[j][b] - pref1[j][a - 1] == 0) return 0;
-		}
-	}
-	return 1;
+typedef pair<int,int> pii;
+typedef long long ll;
+
+#define M 2000005
+#define N 30
+int pref0[N][M], pref1[N][M];
+int useless[N];
+int n, m, input[M];
+int tab1[M], tab2[M];
+ll ans;
+
+bool przedzial(int a, int b) { //czy przedzial <a,b> jest dobry 
+    if(a == b) {
+        rep(i,0,n-1)
+            if(useless[i] == 0) //jesli jakis poglad nie jest bezuzytczny to znaczy ze sie nie da, poniewaz przedzial jest dlugosci 1 a potrzeba w nim obu odpowiedzi na dany poglad
+                return false;
+    }
+    if(a < b) { //normalny przedzial
+        rep(i,0,n-1) {
+            if(useless[i]) //bezuzyteczny poglad - nie trzeba go rozpatrywac
+                continue;
+            if(pref0[i][b] - pref0[i][a - 1] == 0) return false;
+			if(pref1[i][b] - pref1[i][a - 1] == 0) return false;
+        }
+    }
+    if(a > b) { //przedzial przechodzacy przez koniec na poczatek (okragly stol)
+        rep(i,0,n-1) {
+            if(useless[i]) //bezuzyteczny poglad - nie trzeba go rozpatrywac
+                continue;
+            if(pref0[i][m] - pref0[i][a - 1] + pref0[i][b] == 0) return false;
+			if(pref1[i][m] - pref1[i][a - 1] + pref1[i][b] == 0) return false;
+        }
+    }
+    return true;
 }
-int dystans(int a, int b)
+
+void wczytaj() {
+    cin>>n>>m;
+    rep(j,1,m) 
+        cin>>input[j];
+}
+
+void init() {
+    rep(j,1,m) {
+        int x = input[j];
+        rep(i,0,n-1) {
+            if(x % 2 == 1) {
+		pref1[i][j] = pref1[i][j - 1] + 1;
+		pref0[i][j] = pref0[i][j - 1];
+	    }
+	    else {
+		pref1[i][j] = pref1[i][j - 1];
+		pref0[i][j] = pref0[i][j - 1] + 1;
+	    }
+	    x /= 2;
+        }
+    }
+    rep(i,0,n-1)
+        if(pref0[i][m] == m || pref1[i][m] == m) //jesli wszedzie w wierszu sa 1 albo 0 to ten wiersz jest bezuzyteczny
+            useless[i] = true;
+}
+
+int dystans(int a, int b) //dystans zgodny z okraglym stolem
 {
 	if(a <= b) return b - a + 1;
 	return b + m - a + 1;
 }
-void count_tab1()
-{
-	int p = 1, k = 2;
-	for(; p <= m; p++)
-	{
-		while(przedzial(p,k) == 0)//gasienica
-		{
+
+void oblicz1() {
+    int p = 1, k = 2;
+	for(; p <= m; p++) {
+		while(przedzial(p,k) == 0) {
 			k++;
 			if(k > m) k = 1;
 		}
-		tab1[p] = k;
+		tab1[p] = k;//idac w prawa strone pierwsze miejsce przy ktorym przedzial <p,k> jest dobry
 	}
 }
-void count_tab2()
-{
-	for(int i = 1; i <= m; i++)
-	{
-		if(tab2[tab1[i]] == 0) 
-		{
-			tab2[tab1[i]] = i;
-			tab3[tab1[i]] = dystans(i, tab1[i]);//
-		}
-		else
-		{
-			if(dystans(i, tab1[i]) < tab3[tab1[i]]) tab2[tab1[i]] = i;//tutaj tez
-		}
-	}
+
+void oblicz2() {
+    int p = m, k = m-1;
+    for(; p >= 1; p--) {
+        while(przedzial(k,p) == 0) {
+            k--;
+            if(k < 1) k = m;
+        }
+        tab2[p] = k;//idac w lewa strone pierwsze miejsce przy ktorym przedzial <k,p> jest dobry
+    }
 }
-void count_tab3()
-{
-	int first = 1;
-	while(tab2[first] == 0) first++;//first
-	
-	for(int i = first + 1; i <= m; i++)// <first + 1, m>
-	{
-		if(tab2[i - 1] != 0) tab3[i] = tab2[i - 1];
-		else tab3[i] = tab3[i - 1];	
-	}
-	
-	if(tab2[m] != 0) tab3[1] = tab2[m];// <1>
-	else tab3[1] = tab3[m];
-	
-	for(int i = 2; i <= first; i++) // <2, first>
-	{
-		if(tab2[i - 1] != 0) tab3[i] = tab2[i - 1];
-		else tab3[i] = tab3[i - 1];	
-	}
+
+void solve() {
+    rep(j,1,m) {
+        int p1 = j, k1 = tab1[j];
+        int k2 = (j == 1) ? m : j-1, p2 = tab2[k2];
+        if(dystans(p2,k2) + dystans(p1,k1) > m)
+            continue;
+        ans += m - (dystans(p2,k2) + dystans(p1,k1)) + 1;
+    }
+    cout<<ans / 2;//wyszlo dwa razy za duzo
 }
-int count_ans(int i, int koniec, int lewo)
-{
-	if(i < koniec)
-	{
-		if(lewo >= i && lewo <= koniec) return 0;
-		return dystans(koniec, lewo) - 1;
-	}
-	else
-	{
-		if(lewo > koniec && lewo < i) return dystans(koniec, lewo) - 1;
-		return 0;
-	}
-}
+
 int main()
 {
-	ios_base::sync_with_stdio(0);
-	cin>>n>>m;
-	for(int i = 1; i <= m; i++)
-	{
-		cin>>wa;
-		for(int j = 0; j < n; j++)
-		{
-			if(wa % 2 == 1)
-			{
-				pref1[j][i] = pref1[j][i - 1] + 1;
-				pref0[j][i] = pref0[j][i - 1];
-			}
-			else
-			{
-				pref1[j][i] = pref1[j][i - 1];
-				pref0[j][i] = pref0[j][i - 1] + 1;
-			}
-			wa /= 2;
-		}
-	}
-	for(int j = 0; j < n; j++) if(pref1[j][m] == m || pref0[j][m] == m) zle[j] = 1;
-	
-	count_tab1();
-	count_tab2();
-	count_tab3();
-	
-	for(int i = 1; i <= m; i++)	ans += count_ans(i, tab1[i], tab3[i]);
-	
-	cout<<ans / 2;
-	
-	return 0;
+    ios_base::sync_with_stdio(0);
+    wczytaj();
+    init();
+    oblicz1();
+    oblicz2();
+    solve();
+    return 0;
 }
