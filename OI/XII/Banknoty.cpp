@@ -1,67 +1,78 @@
 #include<bits/stdc++.h>
+#define f first
+#define s second
+#define pb push_back
+#define rep(i,a,b) for(int i = a; i <= b; i++)
+#define repv(i,a,b) for(int i = a; i >= b; i--)
 using namespace std;
-int n, k, inf = 1000000000;
-int R[201][20001], W[201][20001], b[201], c[201];
-list<pair<int,int> > kolejka;//styl <indeks,R>
+typedef pair<int,int> pii;
+typedef long long ll;
 
-void dodaj(int l,int wartosc)
-{
-	//while(!kolejka.empty() && kolejka.back().second - kolejka.back().first >= wartosc - l) kolejka.pop_back();
-	while(!kolejka.empty() && wartosc - kolejka.back().second <= l - kolejka.back().first) kolejka.pop_back();//l - first to ile banknotow do minimum, wartosc - second to roznica w banknotach, jak jest wieksza badz rowna to lepiej zmienic na nowy
-																											//nasza wartosc musi byc < badz = l - first + tamta wartosc
-	kolejka.push_back({l, wartosc});
+#define N 201
+#define MAX_C 20005
+#define INF 1000000000
+
+int n, kwota, b[N], c[N], dp[N][MAX_C], ile[N][MAX_C]; 
+list<pii> kmax;// <k,dp>
+
+void dodaj(int k, int value) {
+	while(kmax.size() && value - kmax.back().s <= k - kmax.back().f) kmax.pop_back();	//jesli aktualne miejsce jest lepsze od tych poprzednich (jest tak kiedy roznica w dynamiku jest <= roznicy w indeksach k)
+	kmax.push_back({k,value});															//(wtedy dla kolejnych k oplaca sie wziac nasze miejsce niz siegac dalej)
 }
 
-void usun(int l)
-{
-	if(!kolejka.empty() && kolejka.front().first == l) kolejka.pop_front();
+void usun(int k) {
+	if(kmax.front().f == k) kmax.pop_front();
 }
 
-void czysc()
-{
-	while(kolejka.size()) kolejka.pop_back();
+void czystka() {
+	while(kmax.size()) kmax.pop_back();
 }
 
-int main()
-{
+pii best() {
+	return kmax.front();
+}
+
+void wczytaj() {
 	cin>>n;
-	for(int i = 1; i <= n; i++) cin>>b[i];
-	for(int i = 1; i <= n; i++) cin>>c[i];
-	cin>>k;
-	for(int i = 0; i <= n; i++) for(int j = 1; j <= k; j++) R[i][j] = inf;
-	for(int i = 1; i <= n; i++){
-//		cout<<"jestem w i = "<<i<<"\n";
-		for(int s = 0; s < b[i]; s++){
-			czysc();
-//			cout<<"s = "<<s<<" ";
-			for(int licznik = 0; s + licznik * b[i] <= k; licznik++){
-				dodaj(licznik, R[i - 1][s + licznik * b[i]]);
-//				cout<<"dodaje "<<licznik<<" "<<R[i - 1][s + licznik * b[i]]<<"\n";
-				int wartosc = kolejka.front().second, l = kolejka.front().first;
-//				cout<<"zdjalem z kolejki l = "<<l<<" wartosc = "<<wartosc<<"\n";
-				usun(licznik - c[i]);
-				R[i][s + licznik * b[i]] = wartosc + licznik - l;
-				W[i][s + licznik * b[i]] = licznik - l;
+	rep(i,1,n)
+		cin>>b[i];
+	rep(i,1,n)
+		cin>>c[i];
+	cin>>kwota;
+}
+
+void solve() {
+	rep(i,0,n)
+		rep(j,1,kwota)
+			dp[i][j] = INF;
+	rep(i,1,n) 
+		for(int start = 0; start < b[i]; start++) {
+			czystka();
+			for(int k = 0; start + k * b[i] <= kwota; k++) {
+				dodaj(k, dp[i-1][start + k * b[i]]);
+				int bestVal = best().s, bestK = best().f;//kolejka zwraca nam miejsce na ktore najbardziej oplaca sie spojrzec przy polepszaniu wyniku
+				dp[i][start + k * b[i]] = bestVal + k - bestK;
+				ile[i][start + k * b[i]] = k - bestK;
+				usun(k - c[i]);//usuwamy miejsce do ktorego nie mozemy sie juz odwolac
 			}
-		}	
+		}
+
+	vector<int> wyniki;
+	int current = kwota;
+	repv(i,n,1) {
+		wyniki.pb(ile[i][current]); //odtwarzanie wyniku
+		current -= ile[i][current] * b[i];
 	}
-	cout<<R[n][k]<<"\n";
-	int j = k;
-	vector<int> v;
-	for(int i = n; i >= 1; i--) {
-		v.push_back(W[i][j]);
-		j -= W[i][j] * b[i];
-	}
-	for(int i = v.size() - 1; i >= 0; i--) cout<<v[i]<<" ";	
-/*	cout<<"R[n][k]:\n";
-	for(int i = 1; i <= n; i++) {
-		for(int j = 0; j <= k; j++) cout<<R[i][j]<<" ";
-		cout<<"\n";
-	}
-	cout<<"W[n][k]:\n";
-	for(int i = 1; i <= n; i++) {
-		for(int j = 0; j <= k; j++) cout<<W[i][j]<<" ";
-		cout<<"\n";
-	}*/
+	reverse(wyniki.begin(), wyniki.end());
+
+	cout<<dp[n][kwota]<<"\n";
+	for(auto it: wyniki)
+		cout<<it<<" ";
+}
+
+int main() {
+	ios_base::sync_with_stdio(0);
+	wczytaj();
+	solve();
 	return 0;
 }
