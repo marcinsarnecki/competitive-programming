@@ -41,9 +41,9 @@ void dfs2(int v, int p, ll upperSum, int upperAmount) {		//ten dfs wchodzac do w
 	for(auto u: graf[v])
 		if(u != p) 
 			dfs2(u, v, (ll)		lowerSum[v] - lowerSum[u] - lowerAmount[u] +				//suma odleglosci w poddrzewie nie liczac odgalezienia od ktorego idziemy
-								upperSum + 													                        //suma odleglosci nad wierzcholkiem
-								upperAmount + lowerAmount[v] - lowerAmount[u],				      //dodac ilosc wierzcholkow (poniewaz kazda odleglosc zwiekszy sie o 1, wiec wystarczy dodac ilosc wierzcholkow)
-								upperAmount + lowerAmount[v] - lowerAmount[u]);				      //sama ilosc
+								upperSum + 						//suma odleglosci nad wierzcholkiem
+								upperAmount + lowerAmount[v] - lowerAmount[u],		//dodac ilosc wierzcholkow (poniewaz kazda odleglosc zwiekszy sie o 1, wiec wystarczy dodac ilosc wierzcholkow)
+								upperAmount + lowerAmount[v] - lowerAmount[u]);		//sama ilosc
 }
 
 void solve() {
