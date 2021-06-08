@@ -14,7 +14,6 @@ const ll INF = (ll) 1000000 * 1000000 * 1000000 + 1;// o jeden wiecej niz maksym
 int s, m, q;
 ll dp[SIZE][SIZE][SIZE]; // dp[i][r][d] - ilosc liczb dlugosci i, reszcie r przy dzieleniu przez m, sumie cyfr d
 ll potegi[SIZE]; // 10^i % m
-ll all[SIZE];//wszystkie liczby dlugosci i, ktore pasujace (suma s, reszta z dzielenia 0)
 
 void add(ll &a, ll b) {//bezpieczne dodawanie, zeby sie tam nie przekrecilo
 	a += b;
@@ -35,12 +34,10 @@ void dynamik() {
 					// c XYZ
 					if(c > d)							// zeby obliczyc dp[i][r][d] doklejajac c do XYZ (powstanie cXYZ)
 						continue;						// potrzebujemy ilosci liczb XYZ o sumie d-c oraz o
-					int newsum = d - c;		// takiej reszcie z dzielenia, zeby ta reszta + c*potegi[i] dalo r mod m
+					int newsum = d - c;		// takiej reszcie z dzielenia, zeby ta reszta + c*potegi[i-1] dalo r mod m
 					int newr = ((r - (c * potegi[i-1]) % m) + m ) % m;
 					add(dp[i][r][d], dp[i-1][newr][newsum]);
 				}
-	rep(i,1,200)
-		all[i] = dp[i][0][s];
 }
 
 void odtworz(ll k) {
@@ -72,7 +69,6 @@ void odtworz(ll k) {
 	for(auto c: liczba)
 		cout<<c;
 	cout<<endl;
-	
 }
 
 int main() {
