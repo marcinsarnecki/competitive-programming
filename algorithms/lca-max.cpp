@@ -25,41 +25,26 @@ void dfs(int v, int p, int w) {
 }
 
 bool przodek(int v, int u) { //czy v jest przodkiem u
-	if(v == u)
-		return true;
-	if (preorder[v] < preorder[u] && postorder[v] > preorder[u]) return true;
-		return false;
+	return (preorder[v] <= preorder[u] && postorder[v] >= preorder[u]);
 }
 
 int lcamax(int v, int u) {//max kraw na sciezce v-u //min dzialaloby tak samo, jedynie na poczatku ans musialoby byc rowne +INF 
 	int ans = 0;
-	if (przodek(v, u)) {
-		repv(i, log - 1, 0) if (!przodek(lca[i][u], v)) {
-			ans = max(ans, lca2[i][u]);
-			u = lca[i][u];
-		}
-		ans = max(ans, lca2[0][u]);
-		return ans;
-	}
-	if (przodek(u, v)) {
-		repv(i, log - 1, 0) if (!przodek(lca[i][v], u)) {
+	repv(i, log-1, 0) {
+		if (!przodek(lca[i][v], u)) {
 			ans = max(ans, lca2[i][v]);
 			v = lca[i][v];
 		}
-		ans = max(ans, lca2[0][v]);
-		return ans;
+		if (!przodek(lca[i][u], v)) {
+			ans = max(ans, lca2[i][u]);
+			u = lca[i][u];
+		}
 	}
-	repv(i, log - 1, 0) if (!przodek(lca[i][v], u)) {
-		ans = max(ans, lca2[i][v]);
-		v = lca[i][v];
-	}
-	repv(i, log - 1, 0) if (!przodek(lca[i][u], v)) {
-		ans = max(ans, lca2[i][u]);
-		u = lca[i][u];
-	}
-	ans = max(ans, lca2[0][v]);
-	ans = max(ans, lca2[0][u]);
-	return ans;
+	if(przodek(v, u)) //v byl przodkiem u
+		return max(ans, lca2[0][u]);
+	if(przodek(u, v)) //u byl przodkiem v
+		return max(ans, lca2[0][v]); //nikt nie byl przodkiem nikogo v i u sa pod ich lca
+	return max(ans, max(lca2[0][v], lca2[0][u]));
 }
 
 int main() {
