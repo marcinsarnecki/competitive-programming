@@ -7,37 +7,31 @@
 using namespace std;
 typedef pair<int,int> pii;
 typedef long long ll;
-const long long INF = 1000000000000000000ll;
 
 #define N 1000
 
-int n, parent[N], ranga[N];
-
-void init() {
-	rep(i, 1, n) parent[i] = i;
-}
+int n;
+vector<int> p(N, 1), r(N);
 
 int find(int v) {
-	if(v == parent[v]) 
+	if(v == p[v]) 
 		return v;
-	return parent[v] = find(parent[v]);
+	return p[v] = find(p[v]);
 }
 
-void union_sets(int v, int u) {
-	int a = find(v), b = find(u);
-	if(a != b) {
-		if(ranga[a] > ranga[b])
-			swap(a,b);
-		parent[a] = b;
-		if(ranga[a] == ranga[b])
-			ranga[b]++;
-	}
+bool union_sets(int v, int u) {
+	v = find(v), u = find(u);
+	if(v == u)
+		return false;
+	if(r[u] < r[v])
+		swap(u, v);
+	r[u] += r[v];
+	p[v] = u;
+	return true;
 }
-
 
 int main()
 {
 	ios_base::sync_with_stdio(0);
-	init();
 	return 0;
 }
