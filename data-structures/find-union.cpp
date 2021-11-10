@@ -8,10 +8,10 @@ using namespace std;
 typedef pair<int,int> pii;
 typedef long long ll;
 
-#define N 1000
+#define N 1001
 
 int n;
-vector<int> p(N, 1), r(N);
+vector<int> p(N), r(N, 1);
 
 int find(int v) {
 	if(v == p[v]) 
@@ -33,5 +33,7 @@ bool union_sets(int v, int u) {
 int main()
 {
 	ios_base::sync_with_stdio(0);
+	rep(i,1,n)
+		p[i] = i;
 	return 0;
 }
