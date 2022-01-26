@@ -8,42 +8,39 @@ using namespace std;
 typedef pair<int,int> pii;
 typedef long long ll;
 
-int n,X,x,a,b,maxg,mind,d;
+int n,X,x,a,b,d,g,last;
 
 int main() {
 	ios_base::sync_with_stdio(0);
-	
 	cin>>n>>X;
-	for(int i=0;i<n;i++)
-	{
+	rep(i,1,n) {
 		cin>>x>>a>>b;
 		a++;
 		b--;
-		maxg+=x-d;
-		mind-=x-d;
-		d=x;
-		if(maxg<a or mind>b)
-		{
+		g += x-last;
+		d -= x-last;
+		last = x;
+		if(g < a || d > b) {
 			cout<<"NIE";
 			return 0;
 		}
-		if(mind<a)
-		{
-			if(abs(mind%2)==abs(a%2)) mind=a;
-			else mind=a+1;
+		if(d < a) {
+			if(abs(d%2) == abs(a%2))
+				d=a;
+			else 
+				d=a+1;
 		}
-		if(maxg>b)
-		{
-			if(abs(maxg%2)==abs(b%2)) maxg=b;
-			else maxg=b-1;
+		if(g > b) {
+			if(abs(g%2) == abs(b%2)) 
+				g=b;
+			else 
+				g=b-1;
 		}
-		if(mind>maxg)
-		{
+		if(d > g) {
 			cout<<"NIE";
 			return 0;
 		}	
 	}
-	cout<<(mind+x)/2;
-	
+	cout<<(x + d)/2;
 	return 0;
 }
