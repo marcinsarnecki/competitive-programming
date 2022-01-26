@@ -11,29 +11,15 @@ const long long INF = 1000000000000000000ll;
 
 #define N 500001
 int n, k, roz[N];
-double morale[N];
-vector<int> graf[N], przeskoki;
-double ans;
-
-void wej() {
-	cin>>n>>k;
-	rep(i,2,n) {
-		int u;
-		cin>>u;
-		graf[u].pb(i);
-	}
-}
+double morale[N], ans;
+vector<int> graf[N];
 
 void dfs(int v) {//dfs do rozmiarow 
 	for(auto u: graf[v])
 		dfs(u);
 	roz[v] = 1;
-	bool b = 0;//czy istnieje dziecko o rozmiarze <= k
-	for(auto u: graf[v]) {
+	for(auto u: graf[v]) 
 		roz[v] += roz[u];
-		if(roz[u] <= k) b = 1;
-	}
-	if(b && roz[v] > k) przeskoki.pb(v);//rozmiar v jest > k, a przynajmniej jedno dziecko ma rozmiar <= k, wiec v trzeba uwzglednic przy liczeniu wyniku koncowego
 }
 
 void dfs2(int v) {//dfs do morali
@@ -45,20 +31,23 @@ void dfs2(int v) {//dfs do morali
 	for(auto u: graf[v])
 		dfs2(u);
 	for(auto u: graf[v])
-		m = max(m, min((double)roz[u] / (roz[v] - 1), morale[u]));//max z minimow (minimalny wynik aby nie wybuchl bunt w dziecku, rozmiar dziecka / rozmiar calego poddrzewa - 1)
-	morale[v] = m;//minimalne morale aby v na pewno sie nie zbuntowal
-}
-
-void wypiszWynik() {
-	for(auto v: przeskoki) ans = max(ans, morale[v]);
-	cout<<ans;
+		m = max(m, min((double)roz[u] / (roz[v] - 1), morale[u]));
+	morale[v] = m;
 }
 
 int main() {
 	ios_base::sync_with_stdio(0);
-	wej();
+	cin>>n>>k;
+	rep(i,2,n) {
+		int u;
+		cin>>u;
+		graf[u].pb(i);
+	}
 	dfs(1);
 	dfs2(1);
-	wypiszWynik();
+	rep(i,1,n)
+		if(roz[i] > k) 
+			ans = max(ans, morale[i]);
+	cout<<ans<<"\n";
 	return 0;
 }
