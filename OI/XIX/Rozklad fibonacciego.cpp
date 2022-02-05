@@ -1,42 +1,40 @@
 #include<bits/stdc++.h>
+#define f first
+#define s second
+#define pb push_back
+#define rep(i,a,b) for(int i = a; i <= b; i++)
+#define repv(i,a,b) for(int i = a; i >= b; i--)
 using namespace std;
-long long a, fib[100];
-int p;
+typedef pair<int,int> pii;
+typedef long long ll;
 
-int podzial(long long k)
-{
-	if(k <= 3) return 1;//brzeg
-	int ans = 0;
-	int i = 2;
-	while(!(fib[i] <= k && k < fib[i + 1])) i++;//wstepne nastawienie
-	
-	while(1)
-	{
-		if(fib[i] == k) return ++ans;
-		if(k - fib[i] <= fib[i + 1] - k)//branie tej blizszej z pierwszej mniejszej/pierwszej wiekszej
-		{
-			k = k - fib[i];
-			ans++;
+#define N 92
+ll fib[N+1];
+
+int solve(ll k) {
+	if(k == 1 || k == 2 || k == 3)
+		return 1;
+	rep(i,4,N-1) {
+		if(k == fib[i] || k == fib[i+1])
+			return 1;
+		if(fib[i] < k && k < fib[i+1]) {
+			ll dif1 = k - fib[i], dif2 = fib[i+1] - k;
+			return (dif1 < dif2) ? 1 + solve(dif1) : 1 + solve(dif2);
 		}
-		else
-		{
-			k = fib[i + 1] - k;
-			ans++;
-		}
-		while(fib[i] > k) i--;//k sie zmniejszylo wiec trzeba przesunac i 
 	}
 }
-int main()
-{
+
+int main() {
 	ios_base::sync_with_stdio(0);
 	fib[1] = fib[2] = 1;
-	for(int i = 3; i <= 92; i++) fib[i] = fib[i - 2] + fib[i - 1];
-	
-	cin>>p;
-	for(int i = 1; i <= p; i++)	{
-		cin>>a;
-		cout<<podzial(a)<<"\n";
+	rep(i,2,N)
+		fib[i] = fib[i-1] + fib[i-2];
+	int t;
+	cin>>t;
+	while(t--) {
+		ll k;
+		cin>>k;
+		cout<<solve(k)<<"\n";
 	}
-	
 	return 0;
 }
