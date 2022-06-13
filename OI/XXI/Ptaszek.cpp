@@ -1,96 +1,86 @@
-#include<bits/stdc++.h> //patrzac do tylu (zasieg k) wartosci dp roznia sie co najwyzej o 1, trzymamy 2 zbiory A i B (mniejszych i o 1 wiekszych), zawsze patrzymy na najwieksze drzewo
-#define N 1000005//z A, jesli zbior A sie wyczerpie to przenosimy wszystkie z B do A i kontynuujemy, kolejka kmax
+#include<bits/stdc++.h>
+#define f first
+#define s second
+#define pb push_back
+#define rep(i,a,b) for(int i = a; i <= b; i++)
+#define repv(i,a,b) for(int i = a; i >= b; i--)
 using namespace std;
+typedef pair<int,int> pii;
+typedef long long ll;
+
+#define N 1000005
 
 int tab[N], dp[N], n, q;
 list<int> l1, l2;
 
-void dodajA(int i)
-{
-	while(l1.size() && tab[i] >= tab[l1.back()]) l1.pop_back();
+void dodaj(int i) {
+	while(l1.size() && tab[i] >= tab[l1.back()]) 
+        l1.pop_back();
 	l1.push_back(i);
 }
 
-void usunA(int i)
-{
+void usun(int i) {
 	if(l1.size() && l1.front() == i) l1.pop_front();
 }
 
-int bestA()
-{
-	if(l1.size()) return l1.front();
-	return -1;//empty A
+int best() {
+	if(l1.size())
+        return l1.front();
+	return -1;
 }
 
-void dodajB(int i)
-{
-	while(l2.size() && tab[i] >= tab[l2.back()]) l2.pop_back();
-	l2.push_back(i);
-}
-
-void usunB(int i)
-{
-	if(l2.size() && l2.front() == i) l2.pop_front();
-}
-
-int bestB()
-{
-	if(l2.size()) return l2.front();
-	return -1;//empty B
-}
-
-void popraw()
-{
-	if(l1.size()) return;
-	for(auto it: l2) l1.push_back(it);
+void popraw() {
+	if(l1.size() > 0) 
+        return;
+	for(auto it: l2)
+        dodaj(it);
 	l2.clear();
 }
 
-void solve(int k)
-{
-	if(k == 1) {//corner case
-		for(int i = 2; i <= n; i++) if(tab[i] < tab[i - 1]) dp[i] = dp[i - 1];
-		else dp[i] = dp[i - 1] + 1;
+void solve(int k) {
+	if(k == 1) {
+		rep(i,2,n) 
+            if(tab[i] < tab[i - 1])
+                dp[i] = dp[i - 1];
+		else 
+            dp[i] = dp[i - 1] + 1;
 		cout<<dp[n]<<"\n";
 		return;
 	}
-	l1.clear();
-	l2.clear();
+	l1.clear(), l2.clear();
 	dp[1] = 0;
 	l1.push_back(1);
-	for(int i = 2; i <= n; i++)
-	{
+	rep(i,2,n) {
 		popraw();
-		int best = bestA();
-		if(tab[i] < tab[best]) 
-		{
-			dp[i] = dp[best];
-			dodajA(i);
+		int idx = best();
+		if(tab[i] < tab[idx]) {
+			dp[i] = dp[idx];
+			dodaj(i);
 		}
-		else 
-		{
-			dp[i] = dp[best] + 1;
-			dodajB(i);
+		else  {
+			dp[i] = dp[idx] + 1;
+			l2.push_back(i);
 		}
 		if(i >= k + 1) {
-			usunA(i - k);
-			usunB(i - k);
+			usun(i - k);
+			if(l2.size() > 0 && l2.front() == i - k)
+                l2.pop_front();
 		}
 	}
 	cout<<dp[n]<<"\n";
 	return;
 }
 
-int main()
-{
+int main() {
 	ios_base::sync_with_stdio(0);
 	cin>>n;
-	for(int i = 1; i <= n; i++) cin>>tab[i];
+	rep(i,1,n)
+        cin>>tab[i];
 	cin>>q;
-	for(int i = 1; i <= q; i++) {
-		int w1;
-		cin>>w1;
-		solve(w1);
+	rep(i,1,q) {
+		int k;
+		cin>>k;
+		solve(k);
 	}
 	return 0;
 }
